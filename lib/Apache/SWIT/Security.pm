@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 
 package Apache::SWIT::Security;
 
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 1;
 

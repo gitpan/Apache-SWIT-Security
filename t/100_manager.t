@@ -1,12 +1,13 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 54;
+use Test::More tests => 61;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
 use YAML;
 use Apache::SWIT::Maker::Config;
+use Apache::SWIT::Test::Request;
 
 BEGIN { # $SIG{__DIE__} = sub { diag(Carp::longmess(@_)); };
 	use_ok('T::Apache::SWIT::Security::Role::Container');
@@ -76,6 +77,17 @@ is_deeply([ $loader->roles_container->roles_list ], [
 		[ 1, 'admin' ], [ 2, 'user' ] ]);
 isa_ok($loader->url_manager, 'Apache::SWIT::Security::Role::Manager');
 
+my $_class;
+
+package P;
+
+sub on_req {
+	$_class = shift;
+	return shift()->param('up');
+}
+
+package main;
+
 my $sec_yaml_str2 = <<ENDS;
 roles:
   1: admin
@@ -100,6 +112,15 @@ pages:
   han/page.txt:
     handler: momo
     permissions: [ +manager ]
+  fun/empty:
+    class: P
+    handler: momo
+    security_hook: on_req
+  fun/bun:
+    class: P
+    handler: momo
+    permissions: [ +manager ]
+    security_hook: on_req
   old:
     entry_points:
       one: {}
@@ -168,6 +189,28 @@ is($ac->check_user('User'), 1);
 $ac = $man->access_control("/some/boo"); # deny for all works here
 isnt($ac, undef);
 is($ac->check_user('User'), undef);
+
+
+$ac = $man->access_control("/root/fun/bun");
+isnt($ac, undef);
+my @r = @roles;
+@roles = (13);
+
+my $req = Apache::SWIT::Test::Request->new;
+is($ac->check_user('User', $req), undef);
+is($_class, 'P');
+
+$req->set_params({ up => 1 });
+is($ac->check_user('User', $req), 1);
+
+$ac = $man->access_control("/root/fun/empty");
+isnt($ac, undef);
+is($ac->check_user('User', $req), 1);
+
+$req->set_params({ up => undef });
+is($ac->check_user('User', $req), undef);
+
+@roles = @r;
 
 $ac = $man->access_control("/ok/ggg");
 isnt($ac, undef);

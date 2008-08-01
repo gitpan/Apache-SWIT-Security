@@ -33,8 +33,11 @@ sub load {
 	my %urls;
 	$tree->for_each_url(sub {
 		my ($url, $pname, $pentry, $ep) = @_; 
-		my $ps = $ep->{permissions} or return;
-		$urls{ $url } = { perms => $self->parse_permissions($ps) };
+		my $ps = $ep->{permissions};
+		return unless ($ps || $ep->{security_hook});
+		$urls{$url}->{perms} = $self->parse_permissions($ps);
+		$urls{$url}->{hook_class} = $pentry->{class};
+		$urls{$url}->{hook_func} = $ep->{security_hook};
 	});
 
 	my @rps;
@@ -44,7 +47,8 @@ sub load {
 		push @rps, \@r;
 	}
 	my $cs = $tree->{capabilities} || {};
-	my %caps = map { ($_, $self->parse_permissions($cs->{$_})) } keys %$cs;
+	my %caps = map { ($_, $self->parse_permissions($cs->{$_})) }
+			keys %$cs;
 	my $mgr = Apache::SWIT::Security::Role::Manager->new(\%urls, \@rps
 			, \%caps);
 	$self->url_manager($mgr);

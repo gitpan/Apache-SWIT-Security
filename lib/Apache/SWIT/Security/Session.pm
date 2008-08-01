@@ -17,7 +17,7 @@ sub swit_startup {
 
 sub authorize {
 	my ($self, $ac) = @_;
-	return $ac->check_user($self->get_user);
+	return $ac->check_user($self->get_user, $self->request);
 }
 
 sub is_capable {

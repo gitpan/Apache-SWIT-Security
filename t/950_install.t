@@ -94,6 +94,7 @@ use File::Slurp;
 
 BEGIN { use_ok("T::Test"); }
 
+T::Test->new->reset_db;
 my $t = T::Test->new;
 my $ef = ASTU_Read_Error_Log() if $t->mech;
 my @urls = Find_Open_URLs($t, haha => 'hihi');

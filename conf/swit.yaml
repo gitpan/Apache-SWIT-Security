@@ -1,25 +1,13 @@
---- !perl/Apache::SWIT::Maker::Config
+--- !!perl/hash:Apache::SWIT::Maker::Config
 app_name: apache_swit_security
-roles:
-  1: admin
-  2: user
-
 env_vars:
-  AS_SECURITY_MANAGER: T::Apache::SWIT::Security::Role::Manager
   AS_SECURITY_CONTAINER: T::Apache::SWIT::Security::Role::Container
+  AS_SECURITY_MANAGER: T::Apache::SWIT::Security::Role::Manager
   AS_SECURITY_USER_CLASS: Apache::SWIT::Security::DB::User
-
-skip_install:
-  - lib/T/Apache/SWIT/Security/Role/Manager.pm
-  - lib/T/Apache/SWIT/Security/Role/Container.pm
-
 generators:
   - Apache::SWIT::Maker::Generator
   - Apache::SWIT::Subsystem::Generator
   - Apache::SWIT::Security::Role::Generator
-
-startup_classes:
-  - Apache::SWIT::Security::Session
 pages:
   login:
     class: Apache::SWIT::Security::UI::Login
@@ -34,25 +22,41 @@ pages:
     entry_points:
       r:
         handler: swit_render_handler
+        permissions:
+          - +all
         template: templates/result.tt
-        permissions: [ +all ]
   userform:
     class: Apache::SWIT::Security::UI::UserForm
     entry_points:
       r:
         handler: swit_render_handler
+        permissions:
+          - +admin
         template: templates/userform.tt
-        permissions: [ +admin ]
       u:
         handler: swit_update_handler
-        permissions: [ +admin ]
+        permissions:
+          - +admin
   userlist:
     class: Apache::SWIT::Security::UI::UserList
     entry_points:
       r:
         handler: swit_render_handler
+        permissions:
+          - +admin
         template: templates/userlist.tt
+      u:
+        handler: swit_update_handler
+        permissions:
+          - +admin
+  userprofile:
+    class: Apache::SWIT::Security::UI::UserProfile
+    entry_points:
+      r:
+        handler: swit_render_handler
+        template: templates/userprofile.tt
         permissions: [ +admin ]
+        security_hook: check_profile_user
       u:
         handler: swit_update_handler
         permissions: [ +admin ]
@@ -61,11 +65,21 @@ pages:
     entry_points:
       r:
         handler: swit_render_handler
+        permissions:
+          - +admin
         template: templates/userrolelist.tt
-        permissions: [ +admin ]
       u:
         handler: swit_update_handler
-        permissions: [ +admin ]
+        permissions:
+          - +admin
+roles:
+  1: admin
+  2: user
 root_class: Apache::SWIT::Security
 root_location: /apache/swit/security
 session_class: Apache::SWIT::Security::Session
+skip_install:
+  - lib/T/Apache/SWIT/Security/Role/Manager.pm
+  - lib/T/Apache/SWIT/Security/Role/Container.pm
+startup_classes:
+  - Apache::SWIT::Security::Session

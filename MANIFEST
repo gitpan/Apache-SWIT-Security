@@ -38,3 +38,5 @@ lib/Apache/SWIT/Security/UI/UserList.pm
 lib/Apache/SWIT/Security/Role/Loader.pm
 templates/userrolelist.tt
 lib/Apache/SWIT/Security/UI/UserRoleList.pm
+templates/userprofile.tt              
+lib/Apache/SWIT/Security/UI/UserProfile.pm

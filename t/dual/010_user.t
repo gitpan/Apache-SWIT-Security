@@ -1,8 +1,9 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 24;
+use Test::More tests => 37;
 use Apache::SWIT::Security::Test qw(Is_URL_Secure);
+use Apache::SWIT::Test::Utils;
 
 BEGIN { use_ok('T::Test'); }
 
@@ -51,3 +52,65 @@ $t->with_or_without_mech_do(2, sub {
 	$t->ht_userform_r(make_url => 1);
 	is($t->mech->status, 403);
 });
+
+$t->ok_ht_login_r(make_url => 1, ht => { username => '', password => '' });
+$t->ht_login_u(ht => { username => 'admin', password => 'password' });
+$t->ok_ht_result_r(ht => { username => 'admin' });
+
+$t->ok_ht_userprofile_r(make_url => 1, param => { HT_SEALED_user_id => 1 }
+	, ht => { name => 'admin', old_password => '', new_password => ''
+		, new_password_confirm => '' });
+$t->with_or_without_mech_do(2, sub {
+	$t->ht_userprofile_u(ht => {
+		HT_SEALED_user_id => 1, old_password => 'p', new_password => 'h'
+		, new_password_confirm => 'h'
+	});
+
+	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
+		, ht => { name => 'admin', old_password => 'p'
+			, new_password => 'h'
+			, error => 'Wrong password'
+			, new_password_confirm => 'h' });
+
+	$t->ht_userprofile_u(ht => {
+		HT_SEALED_user_id => 1, old_password => 'password'
+		, new_password => 'h2'
+		, new_password_confirm => 'h'
+	});
+
+	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
+		, ht => { name => 'admin', old_password => 'password'
+			, new_password => 'h2'
+			, error => 'Passwords do not match'
+			, new_password_confirm => 'h' });
+});
+
+$t->ht_userprofile_u(ht => {
+	HT_SEALED_user_id => 1, old_password => 'password'
+	, new_password => 'h2', name => 'admin2'
+	, new_password_confirm => 'h2'
+});
+
+$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
+	, ht => { name => 'admin2', old_password => ''
+		, new_password => ''
+		, error => '', new_password_confirm => '' });
+
+$t = T::Test->new;
+$t->ok_ht_login_r(make_url => 1, ht => { username => '', password => '' });
+$t->ht_login_u(ht => { username => 'admin2', password => 'h2' });
+$t->ok_ht_result_r(ht => { username => 'admin2' });
+
+$t = T::Test->new;
+$t->ok_ht_login_r(make_url => 1, ht => { username => '', password => '' });
+$t->ht_login_u(ht => { username => 'user', password => 'p' });
+$t->ok_ht_result_r(ht => { username => 'user' });
+
+$t->ok_ht_userprofile_r(make_url => 1, param => { HT_SEALED_user_id => 2 }
+	, ht => { name => 'user', old_password => '', new_password => ''
+		, new_password_confirm => '' });
+
+$t->ok_ht_userprofile_r(make_url => 1
+	, param => { HT_SEALED_user_id => 1 }
+	, ht => { HT_NO_name => 'admin2' });
+$t->with_or_without_mech_do(1, sub { is($t->mech->status, 403); });
