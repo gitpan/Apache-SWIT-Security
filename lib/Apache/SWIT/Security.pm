@@ -2,8 +2,16 @@ use strict;
 use warnings FATAL => 'all';
 
 package Apache::SWIT::Security;
+use base 'Exporter';
 
-our $VERSION = 0.02;
+our @EXPORT_OK = qw(Sealed_Params);
+our $VERSION = 0.03;
+
+sub Sealed_Params {
+	my $r = Apache2::Request->new(shift);
+	return map { $_ ? HTML::Tested::Seal->instance->decrypt($_) : undef }
+			map { $r->param($_) } @_;
+}
 
 1;
 

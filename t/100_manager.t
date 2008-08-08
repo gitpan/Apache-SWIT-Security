@@ -1,13 +1,14 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 61;
+use Test::More tests => 69;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
 use YAML;
 use Apache::SWIT::Maker::Config;
 use Apache::SWIT::Test::Request;
+use Apache::SWIT::Test::Utils;
 
 BEGIN { # $SIG{__DIE__} = sub { diag(Carp::longmess(@_)); };
 	use_ok('T::Apache::SWIT::Security::Role::Container');
@@ -15,6 +16,7 @@ BEGIN { # $SIG{__DIE__} = sub { diag(Carp::longmess(@_)); };
 	use_ok('Apache::SWIT::Security::Role::Container');
 	use_ok('Apache::SWIT::Security::Role::Loader'); 
 	use_ok('Apache::SWIT::Security::Role::Manager'); 
+	use_ok('Apache::SWIT::Security', qw(Sealed_Params)); 
 }
 
 unlike(read_file('blib/conf/httpd.conf'), qr/SWITSecurityPermissions/);
@@ -124,8 +126,24 @@ pages:
   old:
     entry_points:
       one: {}
+
+  # check that security_hook works with rule_permissions
+  guh:
+    class: P
+    entry_points:
+      fuh:
+         handler: h
+         security_hook: on_req
+
+  # check undef perms error everywhere
+  ahh:
+    handler: h
+
 rule_permissions:
   # not going to work because of entry point permissions
+  - [ '.*ahh.*' ]
+  # second rule should not play
+  - [ '/root/ahh.*', '+manager' ]
   - 
     - '.*some.*'
     - '-all'
@@ -133,6 +151,8 @@ rule_permissions:
   - [ '.*boo.*', '+manager' ]
   - [ '.*/ok/.*', '+all' ]
   - [ '/root/foo/.*', '+all' ]
+  - [ '.*guh.*', '+manager' ]
+
 capabilities:
   moo_cap: [ +manager ]
   user_can: [ +user ]
@@ -152,6 +172,7 @@ is($ac->check_user('User'), 1);
 is($man->access_control("other/url/r"), undef);
 
 is($man->access_control("/root/foo/bah"), undef);
+is($man->access_control("/root/ahh"), undef);
 is($man->access_control("ok/aga/r"), undef);
 
 $ac = $man->access_control("/root/some/url/u");
@@ -202,6 +223,7 @@ is($_class, 'P');
 
 $req->set_params({ up => 1 });
 is($ac->check_user('User', $req), 1);
+is($ac->check_user(undef, $req), 1);
 
 $ac = $man->access_control("/root/fun/empty");
 isnt($ac, undef);
@@ -210,7 +232,16 @@ is($ac->check_user('User', $req), 1);
 $req->set_params({ up => undef });
 is($ac->check_user('User', $req), undef);
 
+$ac = $man->access_control("/root/guh/fuh");
+isnt($ac, undef);
+is($ac->check_user('User', $req), undef);
+
+$req->set_params({ up => 1 });
+is($ac->check_user('User', $req), 1);
+
 @roles = @r;
+$req->set_params({ up => undef });
+is($ac->check_user('User', $req), 1);
 
 $ac = $man->access_control("/ok/ggg");
 isnt($ac, undef);
@@ -238,7 +269,9 @@ $tree->{env_vars}->{AS_SECURITY_USER_CLASS}
 	= 'Apache::SWIT::Security::DB::User';
 Apache::SWIT::Security::Maker->new->write_sec_modules;
 ok(require("blib/lib/R/C/Role/Container.pm"));
-ok(require("blib/lib/R/C/Role/Manager.pm"));
+
+eval { require("blib/lib/R/C/Role/Manager.pm"); };
+is($@, '') or ASTU_Wait("blib/lib/R/C/Role/Manager.pm at $td");
 
 my $rcc = R::C::Role::Container->create;
 is_deeply($rcc, $loader2->roles_container);
@@ -250,3 +283,11 @@ is_deeply($mcc, $loader2->url_manager);
 
 chdir('/');
 
+package Apache2::Request;
+sub new { return $_[1]; }
+
+package main;
+
+HTML::Tested::Seal->instance('bbb');
+$req->set_params({ a => HTML::Tested::Seal->instance->encrypt('A'), b => 'B' });
+is_deeply([ Sealed_Params($req, 'a', 'b', 'c') ], [ 'A', undef, undef ]);

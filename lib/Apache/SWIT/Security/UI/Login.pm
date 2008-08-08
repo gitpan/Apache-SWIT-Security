@@ -1,7 +1,6 @@
 use strict;
 use warnings FATAL => 'all';
 
-
 package Apache::SWIT::Security::UI::Login;
 use base qw(Apache::SWIT::HTPage);
 use Digest::MD5 qw(md5_hex);
@@ -10,6 +9,8 @@ sub swit_startup {
 	my $rc = shift()->ht_make_root_class;
 	$rc->ht_add_widget(::HTV."::EditBox", 'username');
 	$rc->ht_add_widget(::HTV."::PasswordBox", 'password');
+	$rc->ht_add_widget(::HTV."::Hidden", 'redirect'
+		, default_value => '../result/r');
 	$rc->ht_add_widget(::HTV, $_) for qw(failed logout);
 }
 
@@ -24,7 +25,8 @@ sub ht_swit_update {
 	my ($u) = $ENV{AS_SECURITY_USER_CLASS}->search(
 			name => $root->username,
 			password => md5_hex($root->password));
-	my $res = $u ? '../result/r' : "r?failed=f&username=" . $root->username;
+	my $res = $u ? $root->redirect
+			: "r?failed=f&username=" . $root->username;
 	$r->pnotes('SWITSession')->set_user($u) if ($u);
 	return $res;
 }

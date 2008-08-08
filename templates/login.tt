@@ -10,6 +10,7 @@
 <form action="u" method="post">
 Username: [% username %] <br />
 Password: [% password %] <br />
+[% redirect %]
 <input type="submit" value="Login" />
 </form>
 </body>

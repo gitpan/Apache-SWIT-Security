@@ -8,16 +8,27 @@ use constant ALL => 9999;
 
 sub new {
 	my ($class, $url_data, $rule_perms, $caps) = @_;
-	my %urls;
 	my $acc = 'Apache::SWIT::Security::Role::Manager::Accessor';
-	while (my ($n, $v) = each %$url_data) {
-		$urls{$n} = $acc->new($v);
-	}
 	my @rules;
 	for my $r (@$rule_perms) {
 		my $re = shift @$r;
 		push @rules, [ qr#$re#, $acc->new({ perms => $r }) ];
 	}
+
+	my %urls;
+	while (my ($n, $v) = each %$url_data) {
+		goto NEW_ACC if @{ $v->{perms} };
+		for my $r (@rules) {
+			if ($n =~ $r->[0]) {
+				$v->{perms} = [ @{ $r->[1]->{_perms} } ]
+					if $r->[1];
+				last;
+			}
+		}
+NEW_ACC:
+		$urls{$n} = $acc->new($v);
+	}
+
 	$caps ||= {};
 	my %caps = map { ($_, $acc->new({ perms => $caps->{$_} })) }
 			keys %$caps;
@@ -57,7 +68,7 @@ sub new {
 
 sub check_user {
 	my ($self, $user, $req) = @_;
-	return undef unless $user;
+	goto OUT unless $user;
 	my %gids = map { ($_, 1) } $user->role_ids;
 	my $res;
 	for my $p (@{ $self->{_perms} }) {
@@ -71,6 +82,7 @@ sub check_user {
 		last;
 	}
 	return $res if $res;
+OUT:
 	my $hf = $self->{_hook_func} or return;
 	return $self->{_hook_class}->$hf($req);
 }

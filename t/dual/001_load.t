@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 15;
+use Test::More tests => 17;
 use Carp;
 
 BEGIN {
@@ -77,6 +77,14 @@ $t->ht_userrolelist_u(ht => { user_list => [
 	, { HT_SEALED_ht_id => 1, HT_SEALED_role_id => 2, check => [ 1 ] }
 ] });
 
+$t->ok_ht_userrolelist_r(ht => { user_list => [
+	{ HT_SEALED_ht_id => 1, name => 'admin', role_name => 'admin'
+		, HT_SEALED_role_id => 1, check => [ 1 ] },
+] });
+
+$t->ok_ht_login_r(make_url => 1, param => { redirect => "../userrolelist/r" }
+		, ht => { username => '', password => '' });
+$t->ht_login_u(ht => { username => 'admin', password => 'password' });
 $t->ok_ht_userrolelist_r(ht => { user_list => [
 	{ HT_SEALED_ht_id => 1, name => 'admin', role_name => 'admin'
 		, HT_SEALED_role_id => 1, check => [ 1 ] },

@@ -4,6 +4,7 @@ use warnings FATAL => 'all';
 package Apache::SWIT::Security::UI::UserProfile;
 use base qw(Apache::SWIT::HTPage);
 use Digest::MD5 qw(md5_hex);
+use Apache::SWIT::Security qw(Sealed_Params);
 
 sub swit_startup {
 	my $rc = shift()->ht_make_root_class('HTML::Tested::ClassDBI');
@@ -42,9 +43,10 @@ sub ht_swit_update {
 
 sub check_profile_user {
 	my ($class, $r) = @_;
-	my $u = $r->pnotes('SWITSession')->get_user or return;
-	my $ruid = Apache2::Request->new($r)->param('user_id') or return;
-	return HTML::Tested::Seal->instance->decrypt($ruid) == $u->id;
+	my $s = $r->pnotes('SWITSession') or return;
+	my $u = $s->get_user or return;
+	my ($ruid) = Sealed_Params($r, 'user_id');
+	return $ruid ? ($ruid eq $u->id) : undef;
 }
 
 1;
