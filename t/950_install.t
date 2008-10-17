@@ -10,6 +10,9 @@ use Apache::SWIT::Maker::Manifest;
 use Apache::SWIT::Maker::Conversions;
 use Data::Dumper;
 use Carp;
+use Test::TempDatabase;
+
+Test::TempDatabase->become_postgres_user;
 
 my $mt = Apache::SWIT::Test::ModuleTester->new({ 
 		root_class => 'Apache::SWIT::Security' 

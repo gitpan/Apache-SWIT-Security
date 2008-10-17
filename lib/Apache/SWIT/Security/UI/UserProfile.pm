@@ -24,7 +24,7 @@ sub ht_swit_render {
 }
 
 sub ht_swit_update_die {
-	my ($class, $err, $r, $tested, $args) = @_;
+	my ($class, $err, $r, $tested) = @_;
 	my $em = ($err =~ /WRONG/) ? "Wrong password"
 			: ($err =~ /MISMA/) ? 'Passwords do not match' : undef;
 	$class->SUPER::ht_swit_update_die(@_) unless $em;

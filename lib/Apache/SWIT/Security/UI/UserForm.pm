@@ -15,15 +15,6 @@ sub swit_startup {
 		$ENV{AS_SECURITY_USER_CLASS}, { PrimaryKey => [] });
 }
 
-sub ht_swit_validate {
-	my ($class, $r, $root, $args) = @_;
-	if ($root->password ne $root->password2) {
-		delete $args->{$_} for qw(password password2);
-		return "r?password_mismatch=1";
-	}
-	return shift()->SUPER::ht_swit_validate(@_);
-}
-
 sub ht_swit_render {
 	my ($class, $r, $root) = @_;
 	return $root;
@@ -31,6 +22,8 @@ sub ht_swit_render {
 
 sub ht_swit_update {
 	my ($class, $r, $root) = @_;
+	return $class->swit_failure(qw(r?password_mismatch=1 password password2
+				)) if ($root->password ne $root->password2);
 	$root->password(md5_hex($root->password));
 	$root->cdbi_create_or_update;
 	return "../userlist/r";
