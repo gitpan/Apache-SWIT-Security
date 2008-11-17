@@ -1,13 +1,13 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Apache-SWIT-Security
-version:      0.04
+version:      0.05
 version_from: lib/Apache/SWIT/Security.pm
 installdirs:  site
 requires:
-    Apache::SWIT:                  0.39
+    Apache::SWIT:                  0.4
     Class::DBI::Pg::More:          0.04
-    HTML::Tested:                  0.44
+    HTML::Tested:                  0.46
     Test::Simple:                  0.44
 
 distribution_type: module

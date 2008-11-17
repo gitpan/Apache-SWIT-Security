@@ -5,7 +5,7 @@ package Apache::SWIT::Security;
 use base 'Exporter';
 
 our @EXPORT_OK = qw(Sealed_Params);
-our $VERSION = 0.04;
+our $VERSION = 0.05;
 
 sub Sealed_Params {
 	my $r = Apache2::Request->new(shift);

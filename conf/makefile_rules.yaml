@@ -5,6 +5,7 @@
     - blib/conf/seal.key
     - blib/lib/T/Apache/SWIT/Security/Role/Container.pm
     - blib/lib/T/Apache/SWIT/Security/Role/Manager.pm
+    - blib/lib/Apache/SWIT/Security/InstallationContent.pm
     - t/conf/schema.sql
   actions:
     - $(NOECHO) $(NOOP)
@@ -40,3 +41,7 @@
     - lib/Apache/SWIT/Security/Maker.pm
   actions:
     - ./scripts/swit_app.pl regenerate_httpd_conf
+- targets: [ 'blib/lib/Apache/SWIT/Security/InstallationContent.pm' ]
+  dependencies: [ conf/swit.yaml, '%IC_TEST_FILES%' ]
+  actions:
+    - ./scripts/swit_app.pl installation_content
