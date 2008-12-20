@@ -60,11 +60,14 @@ sub install_subsystem {
 	my $tree = Apache::SWIT::Maker::Config->instance;
 	my $full_class = Apache::SWIT::Maker::Config->instance->root_class
 				. '::' . $module;
-	$tree->{roles} = $self->this_subsystem_original_tree->{roles};
+	my $ot = $self->this_subsystem_original_tree;
+	$tree->{roles} = $ot->{roles};
 	$tree->{env_vars}->{ "AS_SECURITY_" . uc($_) }
 		= $full_class . "::Role::" . $_ for qw(Container Manager);
 	$tree->{env_vars}->{AS_SECURITY_USER_CLASS}
 		= 'Apache::SWIT::Security::DB::User';
+	$tree->{env_vars}->{AS_SECURITY_SALT}
+		= $ot->{env_vars}->{AS_SECURITY_SALT};
 	push @{ $tree->{generators} }, 
 	     'Apache::SWIT::Security::Role::Generator';
 	$tree->save;

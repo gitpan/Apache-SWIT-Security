@@ -3,14 +3,19 @@ use warnings FATAL => 'all';
 
 package Apache::SWIT::Security;
 use base 'Exporter';
+use Digest::MD5 qw(md5_hex);
 
-our @EXPORT_OK = qw(Sealed_Params);
-our $VERSION = 0.05;
+our @EXPORT_OK = qw(Sealed_Params Hash);
+our $VERSION = 0.06;
 
 sub Sealed_Params {
 	my $r = Apache2::Request->new(shift);
 	return map { $_ ? HTML::Tested::Seal->instance->decrypt($_) : undef }
 			map { $r->param($_) } @_;
+}
+
+sub Hash {
+	return md5_hex(($ENV{AS_SECURITY_SALT} // "") . shift);
 }
 
 1;

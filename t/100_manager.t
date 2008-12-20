@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 69;
+use Test::More tests => 71;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
@@ -16,7 +16,7 @@ BEGIN { # $SIG{__DIE__} = sub { diag(Carp::longmess(@_)); };
 	use_ok('Apache::SWIT::Security::Role::Container');
 	use_ok('Apache::SWIT::Security::Role::Loader'); 
 	use_ok('Apache::SWIT::Security::Role::Manager'); 
-	use_ok('Apache::SWIT::Security', qw(Sealed_Params)); 
+	use_ok('Apache::SWIT::Security', qw(Sealed_Params Hash)); 
 }
 
 unlike(read_file('blib/conf/httpd.conf'), qr/SWITSecurityPermissions/);
@@ -30,6 +30,13 @@ my $man = Apache::SWIT::Security::Role::Manager->new({
 });
 ok($man);
 is($man->access_control("some/strange/url"), undef);
+
+is(Hash("foo\n"), 'd3b07384d113edec49eaa6238ad5ff00');
+
+{
+	local $ENV{AS_SECURITY_SALT} = 1234;
+	is(Hash("foo\n"), '83414769c2c135aef8c4c821af5b4c5f');
+};
 
 my $ac = $man->access_control("some/url/r");
 ok($ac);

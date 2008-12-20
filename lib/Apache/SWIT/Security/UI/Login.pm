@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 
 package Apache::SWIT::Security::UI::Login;
 use base qw(Apache::SWIT::HTPage);
-use Digest::MD5 qw(md5_hex);
+use Apache::SWIT::Security qw(Hash);
 
 sub swit_startup {
 	my $rc = shift()->ht_make_root_class;
@@ -24,7 +24,7 @@ sub ht_swit_update {
 	my ($class, $r, $root) = @_;
 	my ($u) = $ENV{AS_SECURITY_USER_CLASS}->search(
 			name => $root->username,
-			password => md5_hex($root->password));
+			password => Hash($root->password));
 	my $res = $u ? $root->redirect
 			: "r?failed=f&username=" . $root->username;
 	$r->pnotes('SWITSession')->set_user($u) if ($u);

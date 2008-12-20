@@ -21,7 +21,7 @@ conf/makefile_rules.yaml
 t/010_db.t
 t/100_manager.t
 scripts/swit_app.pl
-META.yml                                 Module meta-data (added by MakeMaker)
+META.yml
 lib/Apache/SWIT/Security/DB/User.pm
 templates/login.tt
 lib/Apache/SWIT/Security/UI/Login.pm

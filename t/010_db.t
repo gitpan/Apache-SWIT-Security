@@ -3,14 +3,15 @@ use warnings FATAL => 'all';
 
 use Test::More tests => 22;
 use T::TempDB;
-use Digest::MD5 qw(md5_hex);
+use Apache::SWIT::Security qw(Hash);
 
 BEGIN { use_ok('T::Test'); }
 
 my @users = Apache::SWIT::Security::DB::User->retrieve_all;
 is(scalar(@users), 1);
 is($users[0]->name, 'admin');
-is($users[0]->password, md5_hex('password'));
+local $ENV{AS_SECURITY_SALT} = 'ajweqwe';
+is($users[0]->password, Hash('password'));
 is_deeply([ $users[0]->role_ids ], [ 1 ]);
 
 my $u = Apache::SWIT::Security::DB::User->create({

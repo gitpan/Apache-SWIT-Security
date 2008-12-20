@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 
 package Apache::SWIT::Security::UI::UserForm;
 use base qw(Apache::SWIT::HTPage);
-use Digest::MD5 qw(md5_hex);
+use Apache::SWIT::Security qw(Hash);
 
 sub swit_startup {
 	my $rc = shift()->ht_make_root_class('HTML::Tested::ClassDBI');
@@ -24,7 +24,7 @@ sub ht_swit_update {
 	my ($class, $r, $root) = @_;
 	return $class->swit_failure(qw(r?password_mismatch=1 password password2
 				)) if ($root->password ne $root->password2);
-	$root->password(md5_hex($root->password));
+	$root->password(Hash($root->password));
 	$root->cdbi_create_or_update;
 	return "../userlist/r";
 }

@@ -3,18 +3,19 @@ use warnings FATAL => 'all';
 
 package Apache::SWIT::Security::DB::Schema;
 use base 'DBIx::VersionedSchema';
-use Digest::MD5 qw(md5_hex);
+use Apache::SWIT::Security qw(Hash);
 
 __PACKAGE__->Name('apache_swit_security');
 
 __PACKAGE__->add_version(sub {
 	my $dbh = shift;
+	local $ENV{AS_SECURITY_SALT} = 'ajweqwe';
 	$dbh->do(q{ create table users (
 			id serial primary key, 
 			name text unique not null,
 			password text not null) without oids });
 	$dbh->do(q{ insert into users (name, password) 
-			values ('admin', '} . md5_hex('password') . q{') });
+			values ('admin', '} . Hash('password') . q{') });
 
 	$dbh->do(q{ create table user_roles (
 			user_id integer not null references users(id)

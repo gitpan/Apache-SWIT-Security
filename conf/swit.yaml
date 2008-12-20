@@ -4,6 +4,7 @@ env_vars:
   AS_SECURITY_CONTAINER: T::Apache::SWIT::Security::Role::Container
   AS_SECURITY_MANAGER: T::Apache::SWIT::Security::Role::Manager
   AS_SECURITY_USER_CLASS: Apache::SWIT::Security::DB::User
+  AS_SECURITY_SALT: ajweqwe
 generators:
   - Apache::SWIT::Maker::Generator
   - Apache::SWIT::Subsystem::Generator

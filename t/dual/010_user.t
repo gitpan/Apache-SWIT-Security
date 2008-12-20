@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 37;
+use Test::More tests => 46;
 use Apache::SWIT::Security::Test qw(Is_URL_Secure);
 use Apache::SWIT::Test::Utils;
 
@@ -60,7 +60,7 @@ $t->ok_ht_result_r(ht => { username => 'admin' });
 $t->ok_ht_userprofile_r(make_url => 1, param => { HT_SEALED_user_id => 1 }
 	, ht => { name => 'admin', old_password => '', new_password => ''
 		, new_password_confirm => '' });
-$t->with_or_without_mech_do(2, sub {
+$t->with_or_without_mech_do(4, sub {
 	$t->ht_userprofile_u(ht => {
 		HT_SEALED_user_id => 1, old_password => 'p', new_password => 'h'
 		, new_password_confirm => 'h'
@@ -69,8 +69,8 @@ $t->with_or_without_mech_do(2, sub {
 	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
 		, ht => { name => 'admin', old_password => 'p'
 			, new_password => 'h'
-			, error => 'Wrong password'
 			, new_password_confirm => 'h' });
+	like($t->mech->content, qr/Wrong password/);
 
 	$t->ht_userprofile_u(ht => {
 		HT_SEALED_user_id => 1, old_password => 'password'
@@ -81,8 +81,36 @@ $t->with_or_without_mech_do(2, sub {
 	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
 		, ht => { name => 'admin', old_password => 'password'
 			, new_password => 'h2'
-			, error => 'Passwords do not match'
 			, new_password_confirm => 'h' });
+	like($t->mech->content, qr/Passwords do not match/);
+});
+
+$t->ht_userprofile_u(ht => {
+	HT_SEALED_user_id => 1, old_password => 'password'
+	, new_password => 'h2', name => ''
+	, new_password_confirm => 'h2'
+}, $t->mech ? () : (error_ok => 1));
+
+$t->with_or_without_mech_do(7, sub {
+	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
+		, ht => { name => '', old_password => 'password'
+			, new_password => 'h2'
+			, new_password_confirm => 'h2' });
+	like($t->mech->content, qr/The name cannot be empty/);
+	unlike($t->mech->content, qr/The password cannot be empty/);
+
+	$t->ht_userprofile_u(ht => {
+		HT_SEALED_user_id => 1, old_password => ''
+		, new_password => '', name => 'fooo'
+		, new_password_confirm => ''
+	});
+
+	$t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
+		, ht => { name => 'fooo', old_password => ''
+			, new_password => '', new_password_confirm => '' });
+	like($t->mech->content, qr/The password cannot be empty/);
+	like($t->mech->content, qr/New password cannot be empty/);
+	like($t->mech->content, qr/Confirmation password cannot be empty/);
 });
 
 $t->ht_userprofile_u(ht => {
@@ -94,7 +122,7 @@ $t->ht_userprofile_u(ht => {
 $t->ok_ht_userprofile_r(param => { HT_SEALED_user_id => 1 }
 	, ht => { name => 'admin2', old_password => ''
 		, new_password => ''
-		, error => '', new_password_confirm => '' });
+		, new_password_confirm => '' });
 
 $t = T::Test->new;
 $t->ok_ht_login_r(make_url => 1, ht => { username => '', password => '' });
