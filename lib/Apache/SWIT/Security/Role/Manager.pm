@@ -17,15 +17,10 @@ sub new {
 
 	my %urls;
 	while (my ($n, $v) = each %$url_data) {
-		goto NEW_ACC if @{ $v->{perms} };
-		for my $r (@rules) {
-			if ($n =~ $r->[0]) {
-				$v->{perms} = [ @{ $r->[1]->{_perms} } ]
-					if $r->[1];
-				last;
-			}
+		for my $r (reverse @rules) {
+			unshift @{ $v->{perms} }, @{ $r->[1]->{_perms} }
+					if ($n =~ $r->[0] && $r->[1]);
 		}
-NEW_ACC:
 		$urls{$n} = $acc->new($v);
 	}
 

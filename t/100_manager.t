@@ -1,10 +1,11 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 71;
+use Test::More tests => 73;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
+use Data::Dumper;
 use YAML;
 use Apache::SWIT::Maker::Config;
 use Apache::SWIT::Test::Request;
@@ -102,12 +103,14 @@ roles:
   1: admin
   2: user
   3: manager
+  4: forbidden
 root_location: /root
 pages:
   some/url:
     entry_points:
       r:
-        permissions: [ +all ]
+        # role_permissions take precedence
+        permissions: [ -all ]
       u:
         permissions: [ -user, +all ]
   other/url:
@@ -152,9 +155,13 @@ rule_permissions:
   # second rule should not play
   - [ '/root/ahh.*', '+manager' ]
   - 
-    - '.*some.*'
+    - '.*some/url/r'
+    - '+all'
+  - 
+    - '.*some/boo.*'
     - '-all'
   - [ '/root/foo/bah' ]
+  - [ '.*txt', '-forbidden' ]
   - [ '.*boo.*', '+manager' ]
   - [ '.*/ok/.*', '+all' ]
   - [ '/root/foo/.*', '+all' ]
@@ -179,7 +186,7 @@ is($ac->check_user('User'), 1);
 is($man->access_control("other/url/r"), undef);
 
 is($man->access_control("/root/foo/bah"), undef);
-is($man->access_control("/root/ahh"), undef);
+isnt($man->access_control("/root/ahh"), undef); # set through role_permissions
 is($man->access_control("ok/aga/r"), undef);
 
 $ac = $man->access_control("/root/some/url/u");
@@ -195,11 +202,16 @@ $ac = $man->access_control("/root/other/url/r");
 is($ac->check_user('User'), 1);
 
 $ac = $man->access_control("/root/some/url/u");
-is($ac->check_user('User'), undef);
+is($ac->check_user('User'), undef) or diag(Dumper($ac));
 
 $ac = $man->access_control("/root/han/page.txt");
 isnt($ac, undef);
+is($ac->check_user('User'), 1);
 
+@roles = (2, 3, 4);
+is($ac->check_user('User'), undef) or diag(Dumper($ac));
+
+@roles = (2, 3);
 $ac = $man->access_control('moo_cap');
 is($ac, undef);
 
@@ -217,7 +229,6 @@ is($ac->check_user('User'), 1);
 $ac = $man->access_control("/some/boo"); # deny for all works here
 isnt($ac, undef);
 is($ac->check_user('User'), undef);
-
 
 $ac = $man->access_control("/root/fun/bun");
 isnt($ac, undef);
