@@ -20,7 +20,7 @@ Wrong password
 New password: [% new_password %] <br />
 [% IF swit_errors.new_password == 'defined' %]
 New password cannot be empty
-[% ELSIF swit_errors.new_password == 'match' %]
+[% ELSIF swit_errors.new_password == 'mismatch' %]
 Passwords do not match
 [% END %]
 New password confirm: [% new_password_confirm %] <br />

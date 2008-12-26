@@ -1,12 +1,20 @@
 <html>
 <body>
 <form action="u" method="post">
-[% IF password_mismatch %]
-<h1>Passwords do not match</h1>
-[% END %]
 Username: [% username %] <br />
+[% IF swit_errors.username == 'defined' %]
+The name cannot be empty
+[% END %]
 Password: [% password %] <br />
+[% IF swit_errors.password == 'defined' %]
+The password cannot be empty
+[% END %]
 Confirm password: [% password2 %] <br />
+[% IF swit_errors.password2 == 'defined' %]
+The confirmation password cannot be empty
+[% ELSIF swit_errors.password2 == 'mismatch' %]
+The passwords do not match
+[% END %]
 <input type="submit" />
 </form>
 </body>

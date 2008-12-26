@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Carp;
 
 BEGIN {
@@ -29,15 +29,15 @@ $t->ok_ht_userlist_r(make_url => 1, ht => {
 		user_list => [ { HT_SEALED_ht_id => 1, name => 'admin' } ] });
 
 $t->ok_ht_userform_r(make_url => 1, ht => { 
-		username => '', password => '', password2 => ''
-		, password_mismatch => '' });
+		username => '', password => '', password2 => '' });
 
-$t->ht_userform_u(ht => { username => 'user', password => 'p'
-		, password2 => 'd' });
-
-$t->ok_ht_userform_r(ht => { 
-		username => 'user', password => '', password2 => ''
-		, password_mismatch => 1 });
+$t->with_or_without_mech_do(2, sub {
+	$t->ht_userform_u(ht => { username => 'user', password => 'p'
+			, password2 => 'd' });
+	$t->ok_ht_userform_r(ht => { 
+		username => 'user', password => 'p', password2 => 'd' });
+	like($t->mech->content, qr/passwords do not match/);
+});
 
 $t->ht_userform_u(ht => { username => 'user', password => 'p'
 		, password2 => 'p' });

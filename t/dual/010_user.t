@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 46;
+use Test::More tests => 55;
 use Apache::SWIT::Security::Test qw(Is_URL_Secure);
 use Apache::SWIT::Test::Utils;
 
@@ -16,6 +16,26 @@ $t->ok_ht_result_r(ht => { username => 'admin' });
 
 $t->ok_follow_link(text => 'Add more users');
 $t->ok_ht_userform_r(ht => { username => '', password => '', });
+$t->with_or_without_mech_do(9, sub {
+	unlike($t->mech->content, qr/The name cannot be empty/);
+	$t->ht_userform_u(ht => { username => '', password => 'p'
+			, password2 => 'p' });
+	$t->ok_ht_userform_r(ht => { username => '', password => 'p', });
+	like($t->mech->content, qr/The name cannot be empty/);
+
+	unlike($t->mech->content, qr/The password cannot be empty/);
+	unlike($t->mech->content, qr/The confirmation password/);
+	$t->ht_userform_u(ht => { username => 'fooo', password => ''
+			, password2 => '' });
+	like($t->mech->content, qr/The password cannot be empty/);
+	like($t->mech->content, qr/The confirmation password cannot be empty/);
+
+	unlike($t->mech->content, qr/The passwords do not match/);
+	$t->ht_userform_u(ht => { username => 'fooo', password => 'p'
+			, password2 => 'x' });
+	like($t->mech->content, qr/The passwords do not match/);
+});
+
 $t->ht_userform_u(ht => { username => 'user', password => 'p'
 		, password2 => 'p' });
 

@@ -6,7 +6,7 @@ use base 'Exporter';
 use Digest::MD5 qw(md5_hex);
 
 our @EXPORT_OK = qw(Sealed_Params Hash);
-our $VERSION = 0.07;
+our $VERSION = 0.08;
 
 sub Sealed_Params {
 	my $r = Apache2::Request->new(shift);

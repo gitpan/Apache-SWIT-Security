@@ -12,8 +12,11 @@ sub swit_startup {
 	$rc->ht_add_widget(::HTV."::EditBox", 'name', cdbi_bind => '');
 	$rc->ht_add_widget(::HTV."::Hidden", 'user_id', cdbi_bind => 'Primary');
 	$rc->ht_add_widget(::HTV."::PasswordBox", $_
-			, constraints => [ [ "defined", "" ] ])
-		for qw(new_password_confirm new_password old_password);
+			, constraints => [ [ "defined"] ])
+		for qw(new_password_confirm old_password);
+	$rc->ht_add_widget(::HTV."::PasswordBox"
+		, new_password => check_mismatch => 'new_password_confirm'
+		, constraints => [ [ "defined"] ]);
 	$rc->ht_add_widget(::HTV."::Form", form => default_value => 'u');
 	$rc->bind_to_class_dbi($ENV{AS_SECURITY_USER_CLASS});
 }
@@ -26,8 +29,7 @@ sub ht_swit_render {
 
 sub ht_swit_update_die {
 	my ($class, $err, $r, $tested) = @_;
-	my $em = ($err =~ /WRONG/) ? [ old_password => 'wrong' ]
-		: ($err =~ /MISMA/) ? [ new_password => 'match' ] : undef;
+	my $em = ($err =~ /WRONG/) ? [ old_password => 'wrong' ] : undef;
 	$class->SUPER::ht_swit_update_die(@_) unless $em;
 	return $class->_encode_errors([ $em ]);
 }
@@ -36,7 +38,6 @@ sub ht_swit_update {
 	my ($class, $r, $root) = @_;
 	my $u = $root->cdbi_retrieve;
 	die "WRONG" if $u->password ne Hash($root->old_password);
-	die "MISMA" if $root->new_password ne $root->new_password_confirm;
 	$u->password(Hash($root->new_password));
 	$root->cdbi_update;
 	return $root->ht_make_query_string("r", "user_id");

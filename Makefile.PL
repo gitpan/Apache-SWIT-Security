@@ -11,6 +11,6 @@ Apache::SWIT::Subsystem::Makefile->new->write_makefile(
                      'Test::Simple' => 0.44,
 		     'Apache::SWIT' => 0.40
 		     , 'Class::DBI::Pg::More' => '0.04'
-		     , 'HTML::Tested' => '0.46'
+		     , 'HTML::Tested' => '0.48'
                     },
 );
