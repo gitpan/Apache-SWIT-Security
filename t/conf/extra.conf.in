@@ -7,3 +7,8 @@ Include ../blib/conf/httpd.conf
 <Location />
 	PerlInitHandler Apache::SWIT::Test::ResetKids->access_handler
 </Location>
+<Location /test/basic_handler>
+  SetHandler perl-script
+  PerlResponseHandler T::Basic
+</Location>
+

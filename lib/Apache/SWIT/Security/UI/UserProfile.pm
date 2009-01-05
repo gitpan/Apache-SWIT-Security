@@ -31,7 +31,7 @@ sub ht_swit_update_die {
 	my ($class, $err, $r, $tested) = @_;
 	my $em = ($err =~ /WRONG/) ? [ old_password => 'wrong' ] : undef;
 	$class->SUPER::ht_swit_update_die(@_) unless $em;
-	return $class->_encode_errors([ $em ]);
+	return $class->swit_encode_errors([ $em ]);
 }
 
 sub ht_swit_update {
@@ -47,7 +47,7 @@ sub check_profile_user {
 	my ($class, $r) = @_;
 	my $s = $r->pnotes('SWITSession') or return;
 	my $u = $s->get_user or return;
-	my ($ruid) = Sealed_Params($r, 'user_id');
+	my ($ruid) = Sealed_Params(Apache2::Request->new($r), 'user_id');
 	return $ruid ? ($ruid eq $u->id) : undef;
 }
 

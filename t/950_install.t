@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 21;
+use Test::More tests => 22;
 
 use File::Slurp;
 use Apache::SWIT::Test::ModuleTester;
@@ -20,6 +20,10 @@ my $mt = Apache::SWIT::Test::ModuleTester->new({
 $mt->run_make_install;
 is(-f $mt->install_dir . "/T/Apache/SWIT/Security/Role/Container.pm", undef);
 is(-f $mt->install_dir . "/T/Apache/SWIT/Security/Role/Manager.pm", undef);
+
+my $if = read_file($mt->install_dir
+		. '/Apache/SWIT/Security/InstallationContent.pm');
+unlike($if, qr/020_secparams/) or ASTU_Wait;
 
 my $rdir = $mt->root_dir;
 chdir $mt->root_dir;

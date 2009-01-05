@@ -8,11 +8,13 @@ lib/Apache/SWIT/Security/Session.pm
 lib/Apache/SWIT/Security/Test.pm
 lib/Apache/SWIT/Security/DB/Schema.pm
 t/T/TempDB.pm
+t/T/Basic.pm
 t/950_install.t
 t/conf/extra.conf.in
 conf/httpd.conf.in
 t/dual/001_load.t
 t/dual/010_user.t
+t/dual/020_secparams.t
 t/direct_test.pl
 t/apache_test_run.pl
 t/apache_test.pl

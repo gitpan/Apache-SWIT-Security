@@ -1,6 +1,15 @@
 use strict;
 use warnings FATAL => 'all';
 
+package Apache::SWIT::Security::Maker::MF;
+use base 'Apache::SWIT::Subsystem::Makefile';
+
+sub make_this_subsystem_dumps {
+	my %ot = shift()->SUPER::make_this_subsystem_dumps(@_);
+	delete $ot{original_tree}->{dumped_tests}->{"020_secparams.t"};
+	return %ot;
+}
+
 package Apache::SWIT::Security::Maker;
 use base 'Apache::SWIT::Subsystem::Maker';
 use Apache::SWIT::Security::Role::Loader;
@@ -10,6 +19,8 @@ use Apache::SWIT::Maker::Config;
 use Apache::SWIT::Maker::Manifest;
 use Apache::SWIT::Maker::Conversions;
 use File::Slurp;
+
+sub makefile_class { return ref(shift()) . "::MF"; }
 
 sub write_loader_dump_pm {
 	my ($self, $data, $class_name, $more) = @_;

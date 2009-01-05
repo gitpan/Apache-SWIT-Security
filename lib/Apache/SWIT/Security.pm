@@ -6,12 +6,13 @@ use base 'Exporter';
 use Digest::MD5 qw(md5_hex);
 
 our @EXPORT_OK = qw(Sealed_Params Hash);
-our $VERSION = 0.08;
+our $VERSION = 0.09;
 
 sub Sealed_Params {
-	my $r = Apache2::Request->new(shift);
-	return map { $_ ? HTML::Tested::Seal->instance->decrypt($_) : undef }
-			map { $r->param($_) } @_;
+	my $r = shift;
+	my $s = HTML::Tested::Seal->instance;
+	return map { $_ ? $s->decrypt($_) : undef }
+		map { ($r->param($_) || '') } @_;
 }
 
 sub Hash {

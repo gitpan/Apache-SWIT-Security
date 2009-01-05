@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 73;
+use Test::More tests => 74;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
@@ -309,3 +309,7 @@ package main;
 HTML::Tested::Seal->instance('bbb');
 $req->set_params({ a => HTML::Tested::Seal->instance->encrypt('A'), b => 'B' });
 is_deeply([ Sealed_Params($req, 'a', 'b', 'c') ], [ 'A', undef, undef ]);
+
+$req->set_params({ c => HTML::Tested::Seal->instance->encrypt('A') });
+my @res = Sealed_Params($req, 'a', 'b', 'c');
+is_deeply(\@res, [ undef, undef, 'A' ]);
