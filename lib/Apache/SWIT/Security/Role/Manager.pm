@@ -49,6 +49,12 @@ sub capability_control {
 	return $res;
 }
 
+sub add_uri_access_control {
+	my ($self, $url, $param) = @_;
+	$self->{_urls}->{$url} =
+		Apache::SWIT::Security::Role::Manager::Accessor->new($param);
+}
+
 package Apache::SWIT::Security::Role::Manager::Accessor;
 
 sub new {

@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 74;
+use Test::More tests => 78;
 use File::Temp qw(tempdir);
 use File::Slurp;
 use Carp;
@@ -64,6 +64,14 @@ $ac->{_perms} = [ 12, 13 ];
 is($ac->check_user('User'), 1);
 $ac->{_perms} = [ -13, 13 ];
 is($ac->check_user('User'), undef);
+
+is($man->access_control("/dynamically/added"), undef);
+$man->add_uri_access_control("/dynamically/added", { perms => [ 12, 13 ] });
+
+$ac = $man->access_control("/dynamically/added");
+ok($ac);
+is_deeply($ac->{_perms}, [ 12, 13 ]);
+is($ac->check_user('User'), 1);
 
 my $sec_yaml_str = <<ENDS;
 roles:

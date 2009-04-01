@@ -4,11 +4,13 @@ LICENSE
 Makefile.PL
 lib/Apache/SWIT/Security.pm
 conf/swit.yaml
+t/conf/sess_startup.pl
 lib/Apache/SWIT/Security/Session.pm
 lib/Apache/SWIT/Security/Test.pm
 lib/Apache/SWIT/Security/DB/Schema.pm
 t/T/TempDB.pm
 t/T/Basic.pm
+t/T/Session.pm
 t/950_install.t
 t/conf/extra.conf.in
 conf/httpd.conf.in

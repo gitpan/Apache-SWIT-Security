@@ -11,6 +11,11 @@ sub handler {
 	$c ||= "NONE";
 	$r->content_type("text/plain");
 	print "hhhh\n$INC[0]\na=$a\nc=$c\n";
+
+	my $s = $r->pnotes('SWITSession');
+	print "no params denied\n" unless $s->is_allowed('/test/foo');
+	print "random params denied\n" unless $s->is_allowed('/test/foo?a=b');
+	print "params allowed\n" if $s->is_allowed('/test/foo?qqq=1');
 	return Apache2::Const::OK();
 }
 

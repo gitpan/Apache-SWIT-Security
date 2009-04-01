@@ -7,8 +7,15 @@ Include ../blib/conf/httpd.conf
 <Location />
 	PerlInitHandler Apache::SWIT::Test::ResetKids->access_handler
 </Location>
-<Location /test/basic_handler>
-  SetHandler perl-script
-  PerlResponseHandler T::Basic
+
+PerlModule T::Session
+<Location /test>
+  PerlAccessHandler T::Session->access_handler
 </Location>
 
+<Location /test/basic_handler>
+  SetHandler perl-script
+  PerlHandler T::Basic
+</Location>
+
+PerlPostConfigRequire @ServerRoot@/conf/sess_startup.pl
