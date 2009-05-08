@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Apache-SWIT-Security
-version:             0.1
+version:             0.11
 abstract:            Security subsystem for Apache::SWIT based modules
 license:             ~
 author:              
@@ -8,9 +8,9 @@ author:
 generated_by:        ExtUtils::MakeMaker version 6.42
 distribution_type:   module
 requires:     
-    Apache::SWIT:                  0.43
+    Apache::SWIT:                  0.44
     Class::DBI::Pg::More:          0.04
-    HTML::Tested:                  0.48
+    HTML::Tested:                  0.51
     Test::Simple:                  0.44
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html

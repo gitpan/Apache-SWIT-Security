@@ -24,9 +24,9 @@ sub ht_swit_update {
 	my ($class, $r, $root) = @_;
 	my ($u) = $ENV{AS_SECURITY_USER_CLASS}->search(
 			name => $root->username,
-			password => Hash($root->password));
+			password => Hash($root->password // ""));
 	my $res = $u ? $root->redirect
-			: "r?failed=f&username=" . $root->username;
+			: "r?failed=f&username=" . ($root->username // "");
 	$r->pnotes('SWITSession')->set_user($u) if ($u);
 	return $res;
 }

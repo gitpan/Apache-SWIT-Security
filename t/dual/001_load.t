@@ -1,7 +1,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-use Test::More tests => 18;
+use Test::More tests => 19;
 use Carp;
 
 BEGIN {
@@ -21,6 +21,10 @@ $t->ok_ht_login_r(make_url => 1, ht => { username => '', password => '' });
 $t->ht_login_u(ht => { username => 'stranger', password => '1234' });
 $t->ok_ht_login_r(ht => { username => 'stranger', password => '', 
 				failed => 'f' });
+
+$t->ht_login_u(ht => { username => undef });
+$t->ok_ht_login_r(ht => { username => '', password => '', failed => 'f' });
+
 $t->ht_login_u(ht => { username => 'admin', password => 'password' });
 $t->ok_ht_result_r(ht => { username => 'admin' });
 $t->ok_ht_result_r(make_url => 1, ht => { username => 'admin' });

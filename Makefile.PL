@@ -9,8 +9,8 @@ Apache::SWIT::Subsystem::Makefile->new->write_makefile(
     ABSTRACT     => 'Security subsystem for Apache::SWIT based modules',
     PREREQ_PM    => {
                      'Test::Simple' => 0.44,
-		     'Apache::SWIT' => 0.43
+		     'Apache::SWIT' => 0.44
 		     , 'Class::DBI::Pg::More' => '0.04'
-		     , 'HTML::Tested' => '0.48'
+		     , 'HTML::Tested' => '0.51'
                     },
 );
