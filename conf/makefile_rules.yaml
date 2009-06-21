@@ -27,9 +27,9 @@
     - t/conf/schema.sql
 - targets: [ blib/conf/seal.key ]
   dependencies:
-    - Makefile
+    - conf/seal.key
   actions:
-    - ./scripts/swit_app.pl regenerate_seal_key
+    - cp conf/seal.key blib/conf/seal.key
 - targets:
     - blib/conf/httpd.conf
     - blib/conf/do_swit_startups.pl

@@ -11,6 +11,7 @@ lib/Apache/SWIT/Security/DB/Schema.pm
 t/T/TempDB.pm
 t/T/Basic.pm
 t/T/Session.pm
+conf/seal.key
 t/950_install.t
 t/conf/extra.conf.in
 conf/httpd.conf.in
