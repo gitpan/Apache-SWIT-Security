@@ -106,7 +106,8 @@ my $t = T::Test->new;
 my $ef = ASTU_Read_Error_Log() if $t->mech;
 my @urls = Find_Open_URLs($t, haha => 'hihi');
 is_deeply(\@urls, [ qw(/mu/index/r /mu/index/u
-	/mu/thesub/login/r /mu/thesub/login/u) ]) or diag(Dumper(\@urls));
+	/mu/thesub/login/r /mu/thesub/login/u
+	/mu/thesub/result/r) ]) or diag(Dumper(\@urls));
 is($t->session->request->param('haha'), 'hihi');
 $t->with_or_without_mech_do(2, sub {
 	is(ASTU_Read_Error_Log(), $ef);
@@ -148,9 +149,6 @@ ENDS
 
 my $ou = 't/dual/thesub/500_open_urls.t';
 write_file($ou, $inde);
-
-$inde =~ s#/mu/index/r ##;
-$inde =~ s#/mu/index/u##;
 
 $res = join('', `make test 2>&1`);
 is($?, 0);

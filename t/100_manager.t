@@ -42,11 +42,11 @@ is(Hash("foo\n"), 'd3b07384d113edec49eaa6238ad5ff00');
 my $ac = $man->access_control("some/url/r");
 ok($ac);
 
-# if we want to allow all with no user check, just don't put access control
-is($ac->check_user, undef);
+is($ac->check_user, 1);
 
 $ac->{_perms} = [ -1*Apache::SWIT::Security::Role::Manager::ALL ];
 is($ac->check_user, undef);
+
 $ac->{_perms} = [ 12 ];
 is($ac->check_user, undef);
 
@@ -271,8 +271,9 @@ is($ac->check_user('User', $req), 1);
 
 $ac = $man->access_control("/ok/ggg");
 isnt($ac, undef);
-# we have access control but no user: should not allow +all
-is($ac->check_user, undef);
+
+# +all should open the resource even for user with no cookie
+is($ac->check_user, 1);
 
 $ac = $man->access_control("/root/old/one");
 is($ac, undef);

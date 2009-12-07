@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                Apache-SWIT-Security
-version:             0.12
+version:             0.13
 abstract:            Security subsystem for Apache::SWIT based modules
 license:             ~
 author:              

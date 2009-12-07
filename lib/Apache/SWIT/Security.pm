@@ -6,7 +6,7 @@ use base 'Exporter';
 use Digest::MD5 qw(md5_hex);
 
 our @EXPORT_OK = qw(Sealed_Params Hash);
-our $VERSION = 0.12;
+our $VERSION = 0.13;
 
 sub Sealed_Params {
 	my $r = shift;

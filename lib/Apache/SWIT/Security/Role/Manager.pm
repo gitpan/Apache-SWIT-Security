@@ -69,8 +69,7 @@ sub new {
 
 sub check_user {
 	my ($self, $user, $req) = @_;
-	goto OUT unless $user;
-	my %gids = map { ($_, 1) } $user->role_ids;
+	my %gids = map { ($_, 1) } ($user ? $user->role_ids : ());
 	my $res;
 	for my $p (@{ $self->{_perms} }) {
 		last if ($p == -1*Apache::SWIT::Security::Role::Manager::ALL);
@@ -83,7 +82,6 @@ sub check_user {
 		last;
 	}
 	return $res if $res;
-OUT:
 	my $hf = $self->{_hook_func} or return;
 	return $self->{_hook_class}->$hf($req);
 }
